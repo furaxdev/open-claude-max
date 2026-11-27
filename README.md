@@ -1,32 +1,88 @@
 # Open Claude Max
 
 > [!WARNING]
-> This project is not affiliated with Anthropic. It does not unlock any feature of the Max, Pro or Free plans, and it does not bypass any usage limit. It is a set of instructions and working methods for Claude, nothing more.
+> Ce projet n'est pas affilié à Anthropic. Il ne donne accès à aucune fonctionnalité des plans Max, Pro ou Free, et ne contourne aucune limite d'usage. C'est un ensemble d'instructions et de méthodes pour Claude, rien de plus.
 
-**Working methods to get the best out of Claude in your projects: code, chat and design.**
+**Des méthodes de travail pour tirer le meilleur de Claude dans tes projets : code, chat et design.**
 
-[![License](https://img.shields.io/github/license/furaxdev/open-claude-max)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md)
+[![Licence](https://img.shields.io/github/license/furaxdev/open-claude-max)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue)](CHANGELOG.md)
 [![Build](https://github.com/furaxdev/open-claude-max/actions/workflows/ci.yml/badge.svg)](https://github.com/furaxdev/open-claude-max/actions/workflows/ci.yml)
-[![GitHub stars](https://img.shields.io/github/stars/furaxdev/open-claude-max?style=social)](https://github.com/furaxdev/open-claude-max)
+[![Étoiles GitHub](https://img.shields.io/github/stars/furaxdev/open-claude-max?style=social)](https://github.com/furaxdev/open-claude-max)
 
-Open Claude Max is a small pack of Claude skills. There are no modes and no slash commands: Claude picks the relevant skills on its own, based on what you ask. The skills do not add any capability to the model. They structure how the work is done: targeted reading, small tested changes, short verified answers, a rendered check before delivery.
+Open Claude Max est un pack de skills. Il n'y a ni mode, ni commande slash : Claude choisit lui-même les skills utiles d'après ta demande. Les skills n'ajoutent aucune capacité au modèle. Ils structurent le travail : lecture ciblée, petits changements testés, réponses courtes et vérifiées, rendu contrôlé avant livraison.
 
-## Skills
+## Les skills
 
-| Skill | Claude uses it when you ask for... | What it does |
+| Skill | Claude l'utilise quand tu demandes... | Ce qu'il apporte |
 |---|---|---|
-| [`open-claude-max`](skills/open-claude-max/SKILL.md) | Anything | Base rules: short answers, readable code, honesty, attribution kept in commits and PRs |
-| [`omax-code`](skills/omax-code/SKILL.md) | Code, Git, builds, deployment | Targeted file reading, short plan, small tested blocks, minimal code, conventional commits, review before PR, guided refactoring, migrations, scaffolds, deployment (Render, Vercel, Supabase, Docker) |
-| [`omax-security`](skills/omax-security/SKILL.md) | A security audit or review | Defensive audit only: secrets, dependencies, injections, XSS, SSRF, path traversal, auth, configuration. Report sorted by severity, with proof, impact and fix |
-| [`omax-design`](skills/omax-design/SKILL.md) | Interfaces, themes, mockups | Art direction first, restrained palette, WCAG contrast, states, responsive, switchable themes, screenshot check |
-| [`omax-chat`](skills/omax-chat/SKILL.md) | Questions, ideas, texts | Short answers by default, brainstorming, comparisons, analogies, proofreading, fact-checking with sources |
+| [`open-claude-max`](skills/open-claude-max/SKILL.md) | Tout | Règles de base : silencieux par défaut, lisibilité, honnêteté, attribution conservée |
+| [`omax-code`](skills/omax-code/SKILL.md) | Du code, Git, un déploiement | Lecture ciblée, plan court, tests, code minimal, commits conventionnels, revue avant PR, refactoring, migrations, scaffold, déploiement (Render, Vercel, Supabase, Docker) |
+| [`omax-security`](skills/omax-security/SKILL.md) | Un audit de sécurité | Audit défensif uniquement : secrets, dépendances, code, auth, configuration. Rapport par gravité avec preuve, impact et correctif. Aucun exploit |
+| [`omax-design`](skills/omax-design/SKILL.md) | Une interface, un thème | Direction artistique, hiérarchie, palette, contrastes WCAG, états, anti-patterns « AI slop », thèmes, vérification par capture |
+| [`omax-chat`](skills/omax-chat/SKILL.md) | Une question, une idée, un texte | Réponses courtes, brainstorm, comparaisons, explications, relecture, faits vérifiés avec sources |
 
-Skills can combine: a request to build a login page can use `omax-code`, `omax-design` and `omax-security` together.
+Les skills se combinent : une page de connexion peut déclencher `omax-code`, `omax-design` et `omax-security`.
 
 ## Installation
 
-Clone the repository and copy the skill folders into your Claude skills folder:
+### Avec le CLI
+
+```bash
+npx @furaxdev/open-claude-max
+```
+
+L'assistant te pose trois questions, puis demande confirmation avant d'écrire quoi que ce soit :
+
+1. **Où installer ?** Claude Code, Codex, OpenCode ou un autre dossier.
+2. **Quels skills ?** Tous par défaut.
+3. **Ces fichiers sont-ils corrects ?** La liste exacte des fichiers créés ou modifiés s'affiche, avec leurs chemins.
+
+Ensuite il télécharge les skills depuis ce dépôt GitHub (spinner pendant l'opération) et affiche un résumé.
+
+| Cible | Skills | Fichier d'instructions |
+|---|---|---|
+| Claude Code | `~/.claude/skills/<skill>/SKILL.md` | `~/.claude/CLAUDE.md` |
+| Codex | `~/.agents/skills/<skill>/SKILL.md` | `~/.codex/AGENTS.md` (ou `AGENTS.override.md` s'il existe et n'est pas vide) |
+| OpenCode | `~/.config/opencode/skills/<skill>/SKILL.md` | `~/.config/opencode/AGENTS.md` |
+| Autre dossier | `<dossier>/<skill>/SKILL.md` | Celui que tu indiques, ou aucun |
+
+Le CLI ajoute aussi un court bloc d'instructions de déclenchement dans le fichier d'instructions, entre `<!-- open-claude-max:start -->` et `<!-- open-claude-max:end -->`. Le reste du fichier n'est pas touché.
+
+#### Options
+
+| Option | Effet |
+|---|---|
+| `--target <id>` | `claude-code`, `codex`, `opencode` ou `custom` |
+| `--dir <dossier>`, `--instructions <fichier>`, `--no-instructions` | Avec `--target custom` : dossier des skills et fichier d'instructions |
+| `--skills a,b` | Skills à installer (tous par défaut avec `--yes` ou `--dry-run`) |
+| `--dry-run` | Affiche les fichiers concernés sans rien écrire |
+| `--yes`, `-y` | Passe la confirmation (scripts) |
+| `--uninstall` | Retire les skills et le bloc d'instructions |
+| `--offline` | Utilise les copies embarquées dans le paquet au lieu de télécharger |
+| `--ref <réf>` | Branche, tag ou commit à télécharger (défaut : `main`) |
+
+Exemples :
+
+```bash
+npx @furaxdev/open-claude-max --target claude-code --dry-run
+npx @furaxdev/open-claude-max --target codex --skills omax-code,omax-chat --yes
+npx @furaxdev/open-claude-max --target opencode --uninstall
+```
+
+#### Sécurité du CLI
+
+- Aucun appel réseau hors de `raw.githubusercontent.com/furaxdev/open-claude-max`, sans redirection acceptée.
+- Les fichiers téléchargés ne sont jamais exécutés : ce sont des fichiers texte, vérifiés (front matter, nom, taille) avant la première écriture.
+- Aucune écriture sans réponse positive ou `--yes`. `--dry-run` n'écrit jamais.
+- Un fichier existant n'est jamais écrasé sans copie `.bak` à côté, annoncée dans le résumé.
+- Seuls les dossiers de l'outil choisi sont touchés (ou les chemins que tu fournis pour « Autre dossier »).
+
+### Sans CLI
+
+Pour les agents qui n'acceptent pas de commande (Claude cloud, Lovable, etc.), colle le message prêt à l'emploi de [`docs/install-sans-cli.md`](docs/install-sans-cli.md). Il demande à l'agent de lister les fichiers et d'attendre ta confirmation, puis de copier les skills et, après une seconde confirmation, d'ajouter le bloc d'instructions.
+
+### À la main
 
 ```bash
 git clone https://github.com/furaxdev/open-claude-max.git
@@ -34,39 +90,46 @@ mkdir -p ~/.claude/skills
 cp -r open-claude-max/skills/* ~/.claude/skills/
 ```
 
-Each folder in `skills/` is a complete skill, recognized by its `SKILL.md`. You can copy only the ones you want. If your environment supports plugins, add this repository as a plugin source: check your tool's documentation for the exact steps.
+## Utilisation
 
-The skill text is written in French, and Claude answers in French by default. Edit the "Langue" rule in `skills/open-claude-max/SKILL.md` to change it.
+Demande normalement. Il n'y a rien à activer.
 
-## Usage
+- **Code** : « Ajoute une route `GET /health` à mon API Express, avec un test. » Claude lit seulement le fichier de routes, écrit la route, lance le test, puis explique en un court paragraphe ce qui a changé et pourquoi.
+- **Chat** : « Compare Supabase et Firebase pour une petite app de notes. » Claude répond avec un tableau de critères et une recommandation nette.
+- **Design** : « Page d'accueil pour un atelier de reliure, ton chaleureux, thème papier/carnet. » Claude définit la direction artistique, puis une palette restreinte en variables de style, puis vérifie le rendu à 360, 768 et 1280 px.
+- **Sécurité** : « Audite le dossier `api/`. » Claude vérifie secrets, dépendances et code, puis rend un rapport par gravité. Il n'écrit jamais d'exploit.
 
-Ask normally. Nothing to switch on.
+Pour forcer un skill, nomme-le dans ton message (par exemple « utilise omax-security »).
 
-- **Code**: "Add a `GET /health` route to my Express API, with a test." Claude reads only the routes file, writes the route, runs the test, then explains in a short paragraph what changed and why.
-- **Chat**: "Compare Supabase and Firebase for a small notes app." Claude answers with a criteria table and a clear recommendation.
-- **Design**: "Landing page for a bookbinding workshop, warm tone, paper/notebook theme." Claude defines the art direction first, then a restrained palette as style variables, then checks the render at 360, 768 and 1280 px.
-- **Security**: "Audit the `api/` folder." Claude checks secrets, dependencies and code, then returns a report sorted by severity. It never writes an exploit.
+## Ce qui est certain, ce qui ne l'est pas
 
-To force a skill, name it in your message (for example "use omax-security").
+Les emplacements du tableau viennent de la documentation officielle de chaque outil, lue le 27 novembre 2026. Quelques points ne sont pas précisés par ces documentations, et le CLI ne les devine pas :
+
+- **Claude Code** : la variable `CLAUDE_CONFIG_DIR` déplace les réglages et l'historique, mais la documentation ne dit pas si elle déplace aussi les skills et `CLAUDE.md`. Le CLI reste sous `~/.claude` et prévient si la variable est définie.
+- **Codex** : `CODEX_HOME` déplace `AGENTS.md` (le CLI le suit). La documentation ne dit pas s'il déplace les skills : ils restent dans `~/.agents/skills`.
+- **OpenCode** : `XDG_CONFIG_HOME` n'est pas mentionné dans la documentation. Le CLI reste sous `~/.config/opencode`. OpenCode lit aussi `~/.claude/skills` : n'installe pas les mêmes skills dans les deux dossiers si tu utilises les deux outils.
+- **Autres agents** (Claude cloud, Lovable, etc.) : aucun emplacement n'est vérifié. Le message sans CLI demande le chemin à l'utilisateur.
+- Les limites de longueur des champs `name` et `description` ne sont pas fixées par ces documentations. Les tests appliquent une borne prudente de 1024 caractères.
+
+## Limites
+
+- **Les skills ne changent pas le modèle.** Ils structurent le travail, ils ne rendent pas Claude plus intelligent ni plus fiable.
+- **Aucune capacité ajoutée.** Si Claude ne peut pas lancer un outil dans ton environnement, un skill ne le lui donne pas.
+- **Aucun effet sur les plans ni sur les limites d'usage.** Rien ici ne change ton quota, ton coût ou l'accès à une fonctionnalité.
+- **Le déclenchement automatique n'est pas garanti.** Claude décide de charger un skill d'après sa description. Il peut en oublier un : le nommer dans ton message règle le problème.
+- **Pas de remplacement de la relecture humaine.** Tests, audits et rendus restent à vérifier par toi.
+- **Le skill de sécurité n'est pas un audit professionnel.** Il repère les points évidents, il ne prouve pas l'absence de failles.
 
 ## Documentation
 
-- [`ARCHITECTURE.md`](ARCHITECTURE.md): structure of the pack and how a request flows through it.
-- [`CHANGELOG.md`](CHANGELOG.md): version history.
+- [`ARCHITECTURE.md`](ARCHITECTURE.md) : structure du dépôt, flux d'une demande, fonctionnement du CLI.
+- [`docs/install-sans-cli.md`](docs/install-sans-cli.md) : message à coller pour les agents sans CLI.
+- [`CHANGELOG.md`](CHANGELOG.md) : historique des versions.
 
-## Limits
+## Contribuer
 
-- **The skills do not change the model.** They structure the work: they do not make Claude smarter or more reliable.
-- **No capability is added.** If Claude cannot run a tool in your environment, a skill does not give it that tool.
-- **No effect on plans or usage limits.** Nothing here changes your quota, your cost or your access to any feature.
-- **Automatic selection is not guaranteed.** Claude decides when to load a skill from its description. It can miss one; naming the skill in your message fixes that.
-- **Not a replacement for human review.** Tests, audits and renders still need your check.
-- **The security skill is not a professional audit.** It finds the obvious issues. It does not prove that a project is free of flaws.
+Les contributions sont bienvenues. Lis [`ARCHITECTURE.md`](ARCHITECTURE.md), lance `npm test`, et ouvre une issue avant un changement important. Chaque changement visible va dans `CHANGELOG.md`.
 
-## Contributing
-
-Contributions are welcome. Read [`ARCHITECTURE.md`](ARCHITECTURE.md) first, then open an issue before any large change. Every visible change goes in `CHANGELOG.md`.
-
-## License
+## Licence
 
 [MIT](LICENSE)

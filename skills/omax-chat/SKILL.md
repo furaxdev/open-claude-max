@@ -1,6 +1,6 @@
 ---
 name: omax-chat
-description: Méthode pour répondre en conversation - réponses courtes par défaut, brainstorm, comparaison d'options, aide à la décision, explications avec analogies, relecture et rédaction avec ton ajustable, vérification des faits. À utiliser pour les questions, explications, idées, textes à écrire ou à corriger, sans code ni design.
+description: Méthode pour répondre en conversation, sans code ni design. À utiliser pour une question, une explication, une idée, un brainstorm, une comparaison d'options, une aide à la décision, un texte à écrire, à relire ou à corriger, un résumé ou une discussion. Réponse courte par défaut, détaillée sur demande, explications avec analogies, ton ajusté, faits vérifiés avec sources citées et doute signalé.
 ---
 
 # Chat

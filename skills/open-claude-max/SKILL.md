@@ -1,6 +1,6 @@
 ---
 name: open-claude-max
-description: Règles de base pour tout travail avec Claude, qu'il s'agisse de code, de texte ou de design. S'applique en permanence, sans commande : réponses courtes et vérifiées, lisibilité, français par défaut, aucune invention. Les skills omax-code, omax-security, omax-design et omax-chat complètent ces règles selon la tâche.
+description: Règles de base toujours actives pour tout travail avec Claude, qu'il s'agisse de code, de texte ou de design. À appliquer à chaque réponse, sans commande ni mode à choisir. Réponses courtes et vérifiées, résultat sans narration, code lisible, honnêteté sur ce qui est fait ou non, attribution Co-Authored-By conservée dans les commits et les PR, français par défaut. Complété par omax-code, omax-security, omax-design et omax-chat selon la tâche.
 ---
 
 # Open Claude Max

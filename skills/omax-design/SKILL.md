@@ -1,6 +1,6 @@
 ---
 name: omax-design
-description: Méthode pour concevoir ou revoir une interface - direction artistique, hiérarchie, grille, typographie, palette, contrastes WCAG, états, responsive, thèmes (clair, sombre, pixel art, rétro 8-bit, néon, papier/carnet) et rendu vérifié par capture d'écran. À utiliser pour toute page, composant, thème ou maquette.
+description: Méthode pour concevoir ou revoir une interface. À utiliser pour toute demande de design, UI, UX, page, landing page, site, composant, maquette, charte graphique, palette, typographie, thème (sombre, clair, pixel art, rétro 8-bit, néon, papier ou carnet), responsive ou accessibilité. Direction artistique avant le code, hiérarchie, contrastes WCAG, états, anti-patterns AI slop à éviter, rendu vérifié par capture d'écran avant livraison.
 ---
 
 # Design

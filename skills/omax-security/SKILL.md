@@ -1,6 +1,6 @@
 ---
 name: omax-security
-description: Audit de sécurité défensif d'un projet - secrets dans les fichiers et l'historique Git, dépendances vulnérables, injections, XSS, SSRF, path traversal, authentification, sessions, configuration. À utiliser quand l'utilisateur demande un audit, une revue de sécurité ou une vérification de secrets ou de dépendances. Ne produit jamais d'exploit ni de code offensif.
+description: Audit de sécurité défensif d'un projet. À utiliser quand l'utilisateur demande un audit, une revue de sécurité, un scan de secrets, de clés d'API ou de tokens, une vérification de dépendances vulnérables (npm audit, pip-audit) ou une recherche de failles comme injection, XSS, SSRF, path traversal, IDOR, JWT, cookies, CORS ou mode debug en production. Produit un rapport classé par gravité avec preuve, impact et correctif. Ne produit jamais d'exploit ni de code offensif.
 ---
 
 # Sécurité (audit défensif)

@@ -1,0 +1,44 @@
+{
+  "name": "@furaxdev/open-claude-max",
+  "version": "0.3.0",
+  "description": "Installe le pack de skills Open Claude Max (code, sécurité défensive, design, chat) pour Claude Code, Codex ou OpenCode.",
+  "type": "module",
+  "bin": {
+    "open-claude-max": "bin/open-claude-max.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "skills",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "claude",
+    "skills",
+    "agent-skills",
+    "claude-code",
+    "codex",
+    "opencode"
+  ],
+  "license": "MIT",
+  "author": "FuraxDev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/furaxdev/open-claude-max.git"
+  },
+  "bugs": {
+    "url": "https://github.com/furaxdev/open-claude-max/issues"
+  },
+  "homepage": "https://github.com/furaxdev/open-claude-max#readme",
+  "publishConfig": {
+    "access": "public"
+  }
+}

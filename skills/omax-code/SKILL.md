@@ -1,6 +1,6 @@
 ---
 name: omax-code
-description: Méthode pour écrire, modifier, tester, refactorer, migrer, scaffolder ou déployer du code (web, API, mobile, CLI, extension navigateur ; Render, Vercel, Supabase, Docker). À utiliser dès qu'une tâche touche à du code, à un dépôt Git, à un commit ou à une PR.
+description: Méthode pour écrire, modifier, corriger, tester, refactorer, migrer ou déployer du code. À utiliser dès qu'une demande parle de code, bug, fonction, fichier, projet, commit, PR, revue de code, lint, tests, refactoring, migration de dépendances, scaffold, npm, pip, Git, Docker, Render, Vercel, Supabase ou variables d'environnement. Lecture ciblée des fichiers, plan court, petits blocs testés, code minimal, commits conventionnels, revue avant PR, aucun secret commité.
 ---
 
 # Code

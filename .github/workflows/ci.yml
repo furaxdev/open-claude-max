@@ -1,4 +1,4 @@
-# CI: checks that every skill is complete and consistent on each push.
+# CI : tests, vérification du CLI sur chaque cible, et téléchargement réel depuis GitHub.
 name: CI
 
 on:
@@ -6,32 +6,53 @@ on:
   pull_request:
 
 jobs:
-  check:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Tests (front matter, descriptions, bloc, CLI)
+        run: npm test
+
+      - name: --dry-run sur chaque cible
+        run: |
+          export HOME="$(mktemp -d)"
+          for target in claude-code codex opencode; do
+            echo "== $target"
+            node bin/open-claude-max.js --target "$target" --dry-run | tee out.txt
+            grep -q "aucun fichier écrit" out.txt
+          done
+          test -z "$(find "$HOME" -type f)"
+
+      - name: Installation puis désinstallation (copies embarquées)
+        run: |
+          export HOME="$(mktemp -d)"
+          node bin/open-claude-max.js --target claude-code --yes --offline
+          grep -q "open-claude-max:start" "$HOME/.claude/CLAUDE.md"
+          test -f "$HOME/.claude/skills/omax-code/SKILL.md"
+          node bin/open-claude-max.js --target claude-code --uninstall --yes
+          test ! -f "$HOME/.claude/skills/omax-code/SKILL.md"
+
+      - name: Paquet npm (contenu publié)
+        run: npm pack --dry-run
+
+  download:
+    # Vérifie le téléchargement réel depuis le dépôt GitHub, au commit testé.
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Check repository files
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Installation avec téléchargement
         run: |
-          for f in README.md ARCHITECTURE.md CHANGELOG.md LICENSE .gitignore; do
-            test -f "$f" || { echo "Missing file: $f"; exit 1; }
-          done
-
-      - name: Check skill front matter
-        run: |
-          count=0
-          for dir in skills/*/; do
-            name=$(basename "$dir")
-            file="$dir/SKILL.md"
-            test -f "$file" || { echo "Missing $file"; exit 1; }
-            head -n 1 "$file" | grep -qx -- '---' || { echo "$file: no front matter"; exit 1; }
-            grep -qx "name: $name" "$file" || { echo "$file: name must be $name"; exit 1; }
-            grep -q '^description: ' "$file" || { echo "$file: no description"; exit 1; }
-            count=$((count + 1))
-          done
-          test "$count" -gt 0
-
-      - name: Check the non-affiliation warning
-        run: |
-          grep -q '\[!WARNING\]' README.md
-          grep -q '\[!WARNING\]' skills/open-claude-max/SKILL.md
+          export HOME="$(mktemp -d)"
+          node bin/open-claude-max.js --target opencode --yes --ref "$GITHUB_SHA"
+          test -f "$HOME/.config/opencode/skills/omax-chat/SKILL.md"
