@@ -1,93 +1,72 @@
 # Open Claude Max
 
 > [!WARNING]
-> Ce projet n'est pas affilié à Anthropic. Il ne donne accès à aucune fonctionnalité des plans Max, Pro ou Free, et ne contourne aucune limite d'usage. C'est un ensemble d'instructions et de méthodes pour Claude, rien de plus.
+> This project is not affiliated with Anthropic. It does not unlock any feature of the Max, Pro or Free plans, and it does not bypass any usage limit. It is a set of instructions and working methods for Claude, nothing more.
 
-**Des méthodes de travail pour tirer le meilleur de Claude dans tes projets : code, chat et design.**
+**Working methods to get the best out of Claude in your projects: code, chat and design.**
 
-[![Licence](https://img.shields.io/github/license/furaxdev/open-claude-max)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.0-blue)](CHANGELOG.md)
+[![License](https://img.shields.io/github/license/furaxdev/open-claude-max)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md)
 [![Build](https://github.com/furaxdev/open-claude-max/actions/workflows/ci.yml/badge.svg)](https://github.com/furaxdev/open-claude-max/actions/workflows/ci.yml)
-[![Étoiles GitHub](https://img.shields.io/github/stars/furaxdev/open-claude-max?style=social)](https://github.com/furaxdev/open-claude-max)
+[![GitHub stars](https://img.shields.io/github/stars/furaxdev/open-claude-max?style=social)](https://github.com/furaxdev/open-claude-max)
 
-Open Claude Max est un skill polyvalent. Il structure la façon dont Claude travaille : lecture ciblée, petits changements testés, réponses proportionnées, rendu vérifié. Il ne rend pas le modèle plus puissant et n'ajoute aucune capacité.
+Open Claude Max is a small pack of Claude skills. There are no modes and no slash commands: Claude picks the relevant skills on its own, based on what you ask. The skills do not add any capability to the model. They structure how the work is done: targeted reading, small tested changes, short verified answers, a rendered check before delivery.
 
-## Modes
+## Skills
 
-| Commande | Mode | Ce que ça change |
+| Skill | Claude uses it when you ask for... | What it does |
 |---|---|---|
-| `/code` | Code | Lecture ciblée, plan court, tests après chaque bloc, code minimal, commits conventionnels, déploiement guidé |
-| `/chat` | Chat | Réponses courtes par défaut, brainstorm, comparaisons, explications par analogie, relecture, sources citées |
-| `/design` | Design | Direction artistique d'abord, palette restreinte, contrastes WCAG, états soignés, rendu vérifié par capture |
-| `/secu` | Sécurité | Audit défensif uniquement : secrets, dépendances, code, auth, configuration, rapport classé par gravité |
+| [`open-claude-max`](skills/open-claude-max/SKILL.md) | Anything | Base rules: short answers, readable code, honesty, attribution kept in commits and PRs |
+| [`omax-code`](skills/omax-code/SKILL.md) | Code, Git, builds, deployment | Targeted file reading, short plan, small tested blocks, minimal code, conventional commits, review before PR, guided refactoring, migrations, scaffolds, deployment (Render, Vercel, Supabase, Docker) |
+| [`omax-security`](skills/omax-security/SKILL.md) | A security audit or review | Defensive audit only: secrets, dependencies, injections, XSS, SSRF, path traversal, auth, configuration. Report sorted by severity, with proof, impact and fix |
+| [`omax-design`](skills/omax-design/SKILL.md) | Interfaces, themes, mockups | Art direction first, restrained palette, WCAG contrast, states, responsive, switchable themes, screenshot check |
+| [`omax-chat`](skills/omax-chat/SKILL.md) | Questions, ideas, texts | Short answers by default, brainstorming, comparisons, analogies, proofreading, fact-checking with sources |
 
-Le mode se choisit automatiquement d'après ta demande. Une commande le force. `/verbose` affiche les étapes, `/silence` revient au mode par défaut.
-
-Tous les modes respectent les mêmes règles de lisibilité : nommage clair, code court, commentaires qui expliquent le pourquoi, et un court paragraphe après chaque changement.
+Skills can combine: a request to build a login page can use `omax-code`, `omax-design` and `omax-security` together.
 
 ## Installation
 
-### Copie du dossier
-
-Copie le dossier du projet dans le dossier `skills` de ton environnement Claude :
+Clone the repository and copy the skill folders into your Claude skills folder:
 
 ```bash
 git clone https://github.com/furaxdev/open-claude-max.git
-cp -r open-claude-max ~/.claude/skills/open-claude-max
+mkdir -p ~/.claude/skills
+cp -r open-claude-max/skills/* ~/.claude/skills/
 ```
 
-Le skill est reconnu grâce au fichier `SKILL.md` à la racine du dossier.
+Each folder in `skills/` is a complete skill, recognized by its `SKILL.md`. You can copy only the ones you want. If your environment supports plugins, add this repository as a plugin source: check your tool's documentation for the exact steps.
 
-### Via un plugin
+The skill text is written in French, and Claude answers in French by default. Edit the "Langue" rule in `skills/open-claude-max/SKILL.md` to change it.
 
-Si ton environnement gère les plugins, ajoute ce dépôt comme source de plugin. La procédure exacte dépend de ton outil : consulte sa documentation.
+## Usage
 
-## Exemples d'utilisation
+Ask normally. Nothing to switch on.
 
-### `/code`
+- **Code**: "Add a `GET /health` route to my Express API, with a test." Claude reads only the routes file, writes the route, runs the test, then explains in a short paragraph what changed and why.
+- **Chat**: "Compare Supabase and Firebase for a small notes app." Claude answers with a criteria table and a clear recommendation.
+- **Design**: "Landing page for a bookbinding workshop, warm tone, paper/notebook theme." Claude defines the art direction first, then a restrained palette as style variables, then checks the render at 360, 768 and 1280 px.
+- **Security**: "Audit the `api/` folder." Claude checks secrets, dependencies and code, then returns a report sorted by severity. It never writes an exploit.
 
-> Ajoute une route `GET /health` à mon API Express, avec un test.
-
-Claude lit uniquement le fichier de routes, écrit la route, lance le test, puis ajoute un paragraphe : ce qui a changé et pourquoi.
-
-### `/chat`
-
-> Compare Supabase et Firebase pour une petite app de notes. Réponse courte.
-
-Claude répond avec un tableau de critères et une recommandation nette, sans trois pages d'introduction.
-
-### `/design`
-
-> /design Page d'accueil pour un atelier de reliure, ton chaleureux, thème papier/carnet.
-
-Claude définit d'abord la direction artistique, puis une palette restreinte en variables CSS, puis vérifie le rendu à 360, 768 et 1280 px.
-
-### `/secu`
-
-> /secu Audite le dossier `api/` de mon projet.
-
-Claude parcourt les secrets, les dépendances, puis le code. Il rend un rapport classé par gravité, avec pour chaque point la preuve, l'impact et le correctif. Il n'écrit aucun exploit.
+To force a skill, name it in your message (for example "use omax-security").
 
 ## Documentation
 
-- [`SKILL.md`](SKILL.md) : instructions principales.
-- [`docs/code.md`](docs/code.md), [`docs/chat.md`](docs/chat.md), [`docs/design.md`](docs/design.md), [`docs/securite.md`](docs/securite.md) : guides par mode.
-- [`ARCHITECTURE.md`](ARCHITECTURE.md) : structure du skill et flux d'une demande.
-- [`CHANGELOG.md`](CHANGELOG.md) : historique des versions.
+- [`ARCHITECTURE.md`](ARCHITECTURE.md): structure of the pack and how a request flows through it.
+- [`CHANGELOG.md`](CHANGELOG.md): version history.
 
-## Limites
+## Limits
 
-- **Le skill ne change pas le modèle.** Il structure le travail : il ne rend pas Claude plus intelligent ni plus fiable.
-- **Aucune capacité ajoutée.** Si Claude ne peut pas lancer un outil dans ton environnement, le skill ne le lui donne pas.
-- **Aucun effet sur les plans ni les limites d'usage.** Le skill peut réduire les étapes inutiles, mais il ne modifie ni le quota, ni le coût, ni l'accès à une fonctionnalité.
-- **Pas un remplacement de la revue humaine.** Les tests, les audits et les rendus restent à vérifier par toi.
-- **Le mode sécurité ne remplace pas un audit professionnel.** Il aide à trouver les points évidents ; il ne garantit pas l'absence de failles.
-- **Les méthodes peuvent être imparfaites.** Ce sont des consignes écrites, pas des garanties.
+- **The skills do not change the model.** They structure the work: they do not make Claude smarter or more reliable.
+- **No capability is added.** If Claude cannot run a tool in your environment, a skill does not give it that tool.
+- **No effect on plans or usage limits.** Nothing here changes your quota, your cost or your access to any feature.
+- **Automatic selection is not guaranteed.** Claude decides when to load a skill from its description. It can miss one; naming the skill in your message fixes that.
+- **Not a replacement for human review.** Tests, audits and renders still need your check.
+- **The security skill is not a professional audit.** It finds the obvious issues. It does not prove that a project is free of flaws.
 
-## Contribuer
+## Contributing
 
-Les contributions sont bienvenues. Lis [`ARCHITECTURE.md`](ARCHITECTURE.md) pour le fonctionnement, puis ouvre une issue avant une modification importante. Chaque changement visible va dans `CHANGELOG.md`.
+Contributions are welcome. Read [`ARCHITECTURE.md`](ARCHITECTURE.md) first, then open an issue before any large change. Every visible change goes in `CHANGELOG.md`.
 
-## Licence
+## License
 
 [MIT](LICENSE)

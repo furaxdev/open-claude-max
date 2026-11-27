@@ -1,4 +1,4 @@
-# CI : vérifie que le skill est complet et cohérent à chaque push.
+# CI: checks that every skill is complete and consistent on each push.
 name: CI
 
 on:
@@ -11,20 +11,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Vérifier l'arborescence
+      - name: Check repository files
         run: |
-          for f in README.md SKILL.md ARCHITECTURE.md CHANGELOG.md LICENSE .gitignore \
-                   docs/code.md docs/chat.md docs/design.md docs/securite.md; do
-            test -f "$f" || { echo "Fichier manquant : $f"; exit 1; }
+          for f in README.md ARCHITECTURE.md CHANGELOG.md LICENSE .gitignore; do
+            test -f "$f" || { echo "Missing file: $f"; exit 1; }
           done
 
-      - name: Vérifier le front matter de SKILL.md
+      - name: Check skill front matter
         run: |
-          head -n 1 SKILL.md | grep -qx -- '---'
-          grep -qx 'name: open-claude-max' SKILL.md
-          grep -q '^description: ' SKILL.md
+          count=0
+          for dir in skills/*/; do
+            name=$(basename "$dir")
+            file="$dir/SKILL.md"
+            test -f "$file" || { echo "Missing $file"; exit 1; }
+            head -n 1 "$file" | grep -qx -- '---' || { echo "$file: no front matter"; exit 1; }
+            grep -qx "name: $name" "$file" || { echo "$file: name must be $name"; exit 1; }
+            grep -q '^description: ' "$file" || { echo "$file: no description"; exit 1; }
+            count=$((count + 1))
+          done
+          test "$count" -gt 0
 
-      - name: Vérifier l'avertissement de non-affiliation
+      - name: Check the non-affiliation warning
         run: |
           grep -q '\[!WARNING\]' README.md
-          grep -q '\[!WARNING\]' SKILL.md
+          grep -q '\[!WARNING\]' skills/open-claude-max/SKILL.md

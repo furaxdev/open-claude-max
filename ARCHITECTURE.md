@@ -1,84 +1,71 @@
 # Architecture
 
-Ce document décrit la structure du skill et la façon dont une demande le traverse. Il sert de repère à qui reprend le projet.
+This document describes the structure of the pack and how a request goes through it. It is meant for whoever picks the project up later.
 
-## Principe
+## Principle
 
-Le projet ne contient que du texte : des instructions pour Claude. Il n'y a ni code exécutable, ni dépendance, ni accès réseau. Il ne change ni le modèle, ni les plans, ni les limites d'usage.
+The repository only contains text: instructions for Claude. No executable code, no dependency, no network access. It changes neither the model, nor the plans, nor the usage limits.
 
-## Arborescence
+There are no modes and no slash commands. Claude loads each skill by reading its `description`. The skill text itself is written in French.
+
+## Layout
 
 ```text
 open-claude-max/
-├── SKILL.md                  # Instructions principales, lues par Claude
-├── README.md                 # Présentation, installation, exemples
-├── ARCHITECTURE.md           # Ce document
-├── CHANGELOG.md              # Historique des versions
-├── LICENSE                   # Licence MIT
+├── README.md                          # Presentation, install, usage, limits (English)
+├── ARCHITECTURE.md                    # This document
+├── CHANGELOG.md                       # Version history
+├── LICENSE                            # MIT
 ├── .gitignore
-├── docs/
-│   ├── code.md               # Guide détaillé du mode /code
-│   ├── chat.md               # Guide détaillé du mode /chat
-│   ├── design.md             # Guide détaillé du mode /design
-│   └── securite.md           # Guide détaillé du mode /secu
-└── .github/workflows/
-    └── ci.yml                # Vérifie l'arborescence et le front matter
+├── .github/workflows/ci.yml           # Checks every skill has valid front matter
+└── skills/
+    ├── open-claude-max/SKILL.md       # Base rules, apply to everything
+    ├── omax-code/SKILL.md             # Code, Git, deployment
+    ├── omax-security/SKILL.md         # Defensive security audit
+    ├── omax-design/SKILL.md           # Interfaces and themes
+    └── omax-chat/SKILL.md             # Questions, ideas, writing
 ```
 
-## Rôle des fichiers
-
-| Fichier | Rôle | Qui le lit |
-|---|---|---|
-| `SKILL.md` | Règles courtes et précises, chargées avec le skill | Claude |
-| `docs/*.md` | Détails, exemples, commandes. Chargés à la demande | Claude et développeurs |
-| `README.md` | Entrée du dépôt : installation, usage, limites | Humains |
-| `ARCHITECTURE.md` | Structure et flux | Développeurs |
-| `CHANGELOG.md` | Versions et changements | Développeurs, utilisateurs |
-| `ci.yml` | Contrôle automatique à chaque push | GitHub Actions |
-
-Règle de séparation : `SKILL.md` reste court. Tout ce qui dépasse quelques lignes par mode va dans `docs/`.
-
-## Flux d'une demande
+## Flow of a request
 
 ```mermaid
 flowchart TD
-    A[Demande utilisateur] --> B{Commande explicite ?}
-    B -- "/code /chat /design /secu" --> M[Mode imposé]
-    B -- non --> C{Nature de la demande}
-    C -- code, bug, déploiement --> M1[Mode code]
-    C -- explication, idée, rédaction --> M2[Mode chat]
-    C -- interface, thème, visuel --> M3[Mode design]
-    C -- audit, faille, secret --> M4[Mode sécurité]
-    C -- doute --> M5[Mode le plus proche, annoncé en une ligne]
-    M --> R[Règles transversales et lisibilité]
-    M1 --> R
-    M2 --> R
-    M3 --> R
-    M4 --> R
-    M5 --> R
-    R --> O[Réponse : silencieuse par défaut]
-    O --> V{/verbose ?}
-    V -- oui --> D[Étapes détaillées]
-    V -- non --> E[Résultat seul]
+    A[User request] --> B[open-claude-max: base rules, always on]
+    B --> C{Claude matches the request against skill descriptions}
+    C -- code, Git, deployment --> D[omax-code]
+    C -- audit, secrets, vulnerabilities --> E[omax-security]
+    C -- interface, theme, mockup --> F[omax-design]
+    C -- question, idea, text --> G[omax-chat]
+    D --> H[Answer: silent by default]
+    E --> H
+    F --> H
+    G --> H
 ```
 
-## Ordre de lecture pour Claude
+A request can match several skills at once. The base rules always apply.
 
-1. `SKILL.md` : choix du mode, règles transversales, lisibilité, règles de chaque mode.
-2. `docs/<mode>.md` : seulement si la tâche demande le détail (checklist de déploiement, format de rapport, etc.).
+## Roles
 
-## Ajouter un mode ou une règle
+| Skill | Owns | Does not own |
+|---|---|---|
+| `open-claude-max` | Language, silent output, honesty, attribution, readability | Anything specific to code, design, security or chat |
+| `omax-code` | Work loop, commits, PRs, refactoring, migrations, scaffolds, deployment | Security audits, visual design |
+| `omax-security` | Audit order and report format | Fixing code (that goes through `omax-code`) |
+| `omax-design` | Art direction, palette, states, themes, render check | Backend logic |
+| `omax-chat` | Answer length, brainstorming, comparisons, writing, fact-checking | Code and interface work |
 
-1. Ajoute la règle courte dans `SKILL.md`, dans la section du mode concerné.
-2. Mets le détail dans `docs/<mode>.md`.
-3. Si le mode est nouveau : ajoute la commande au tableau « Choisir le mode » et au schéma ci-dessus.
-4. Ajoute une entrée dans `CHANGELOG.md` sous `[Unreleased]`.
-5. Vérifie que la CI passe.
+## Adding or changing a skill
 
-## Contraintes de conception
+1. Create `skills/<name>/SKILL.md`. The folder name must equal the `name` field.
+2. Write a `description` that says what the skill does and when to use it. This is what triggers it, so be specific.
+3. Keep the body short and precise. Rules that always apply go in `open-claude-max`, not in each skill.
+4. Add the skill to the table in `README.md` and in the diagram above.
+5. Add an entry under `[Unreleased]` in `CHANGELOG.md`.
+6. Check that CI passes.
 
-- **Pas de magie** : aucune règle ne demande au modèle d'accéder à quoi que ce soit qu'il n'a pas.
-- **Pas de contournement** : aucune règle ne vise une limite d'usage ou un plan.
-- **Français par défaut** : les noms de commandes et de fichiers restent en anglais ou en minuscules.
-- **Audit défensif uniquement** : le mode sécurité ne produit aucun code offensif.
-- **Relisible** : un développeur qui n'a pas suivi la discussion doit comprendre chaque fichier.
+## Design constraints
+
+- **No magic**: no rule asks Claude to access something it does not have.
+- **No bypass**: no rule targets a usage limit or a plan.
+- **Defensive security only**: `omax-security` never produces offensive code.
+- **Readable**: a developer who did not follow the discussion must understand every file.

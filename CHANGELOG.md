@@ -1,24 +1,32 @@
 # Changelog
 
-Toutes les modifications notables de ce projet sont documentées ici.
+All notable changes to this project are documented here.
 
-Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le versionnage suit [SemVer](https://semver.org/lang/fr/).
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the versioning follows [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-27
+
+Full rewrite.
+
+### Changed
+
+- The single skill with four modes is replaced by five skills that Claude selects on its own from their descriptions: `open-claude-max`, `omax-code`, `omax-security`, `omax-design`, `omax-chat`.
+- `README.md` is now in English.
+- The CI workflow checks the front matter of every skill.
+
+### Removed
+
+- Modes and the `/code`, `/chat`, `/design`, `/secu`, `/verbose`, `/silence` commands. Detail on demand is now asked in plain words.
+- The `docs/` folder: each skill now holds its own short instructions.
+
 ## [0.1.0] - 2026-11-27
 
-### Ajouté
+### Added
 
-- `SKILL.md` : instructions principales et choix du mode.
-- Modes `/code`, `/chat`, `/design` et `/secu` (audit défensif uniquement).
-- Règles transversales : mode silencieux par défaut, `/verbose` et `/silence`, français par défaut, attribution conservée.
-- Section lisibilité applicable à tous les modes.
-- `docs/` : guides détaillés pour chaque mode.
-- `ARCHITECTURE.md` : structure du skill et flux d'une demande.
-- `README.md` avec avertissement de non-affiliation, badges et exemples.
-- Licence MIT.
-- Workflow CI : vérifie l'arborescence et le front matter de `SKILL.md`.
+- First version: one skill with four modes and the `docs/` guides.
 
-[Unreleased]: https://github.com/furaxdev/open-claude-max/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/furaxdev/open-claude-max/releases/tag/v0.1.0
+[Unreleased]: https://github.com/furaxdev/open-claude-max/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/furaxdev/open-claude-max/compare/1e931d5...HEAD
+[0.1.0]: https://github.com/furaxdev/open-claude-max/commit/fbd6f31
