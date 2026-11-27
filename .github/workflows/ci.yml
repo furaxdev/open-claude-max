@@ -1,4 +1,4 @@
-# CI : vérifie que le skill est complet et cohérent à chaque push.
+# CI : tests, vérification du CLI sur chaque cible, et téléchargement réel depuis GitHub.
 name: CI
 
 on:
@@ -6,25 +6,53 @@ on:
   pull_request:
 
 jobs:
-  check:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Tests (front matter, descriptions, bloc, CLI)
+        run: npm test
+
+      - name: --dry-run sur chaque cible
+        run: |
+          export HOME="$(mktemp -d)"
+          for target in claude-code codex opencode; do
+            echo "== $target"
+            node bin/open-claude-max.js --target "$target" --dry-run | tee out.txt
+            grep -q "aucun fichier écrit" out.txt
+          done
+          test -z "$(find "$HOME" -type f)"
+
+      - name: Installation puis désinstallation (copies embarquées)
+        run: |
+          export HOME="$(mktemp -d)"
+          node bin/open-claude-max.js --target claude-code --yes --offline
+          grep -q "open-claude-max:start" "$HOME/.claude/CLAUDE.md"
+          test -f "$HOME/.claude/skills/omax-code/SKILL.md"
+          node bin/open-claude-max.js --target claude-code --uninstall --yes
+          test ! -f "$HOME/.claude/skills/omax-code/SKILL.md"
+
+      - name: Paquet npm (contenu publié)
+        run: npm pack --dry-run
+
+  download:
+    # Vérifie le téléchargement réel depuis le dépôt GitHub, au commit testé.
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Vérifier l'arborescence
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Installation avec téléchargement
         run: |
-          for f in README.md SKILL.md ARCHITECTURE.md CHANGELOG.md LICENSE .gitignore \
-                   docs/code.md docs/chat.md docs/design.md docs/securite.md; do
-            test -f "$f" || { echo "Fichier manquant : $f"; exit 1; }
-          done
-
-      - name: Vérifier le front matter de SKILL.md
-        run: |
-          head -n 1 SKILL.md | grep -qx -- '---'
-          grep -qx 'name: open-claude-max' SKILL.md
-          grep -q '^description: ' SKILL.md
-
-      - name: Vérifier l'avertissement de non-affiliation
-        run: |
-          grep -q '\[!WARNING\]' README.md
-          grep -q '\[!WARNING\]' SKILL.md
+          export HOME="$(mktemp -d)"
+          node bin/open-claude-max.js --target opencode --yes --ref "$GITHUB_SHA"
+          test -f "$HOME/.config/opencode/skills/omax-chat/SKILL.md"
