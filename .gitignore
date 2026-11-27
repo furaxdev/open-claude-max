@@ -1,0 +1,25 @@
+# Secrets et variables d'environnement locales
+.env
+.env.*
+!.env.example
+
+# Dépendances et caches
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+
+# Builds et rapports générés
+dist/
+build/
+coverage/
+*.log
+
+# Captures d'écran de rendu design
+screenshots/
+
+# Éditeurs et système
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

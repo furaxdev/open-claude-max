@@ -1,0 +1,30 @@
+# CI : vérifie que le skill est complet et cohérent à chaque push.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Vérifier l'arborescence
+        run: |
+          for f in README.md SKILL.md ARCHITECTURE.md CHANGELOG.md LICENSE .gitignore \
+                   docs/code.md docs/chat.md docs/design.md docs/securite.md; do
+            test -f "$f" || { echo "Fichier manquant : $f"; exit 1; }
+          done
+
+      - name: Vérifier le front matter de SKILL.md
+        run: |
+          head -n 1 SKILL.md | grep -qx -- '---'
+          grep -qx 'name: open-claude-max' SKILL.md
+          grep -q '^description: ' SKILL.md
+
+      - name: Vérifier l'avertissement de non-affiliation
+        run: |
+          grep -q '\[!WARNING\]' README.md
+          grep -q '\[!WARNING\]' SKILL.md
